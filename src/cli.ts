@@ -22,6 +22,7 @@ program
 	.option('-j|--json [bool]', 'Display the output as JSON', false)
 	.option('-t|--tree <traversal>', 'Which part of the output JSON to display (dot-delimited)')
 	.option('-F|--listFiles [bool]', 'Whether to list every matching file under the language results', false)
+	.option('-m|--minSize <size>', 'Minimum file size to show language results for (must have a unit: b, kb, mb, %)')
 	.option('-q|--quick [bool]', 'Skip complex language analysis (alias for -{A|I|H|S}=false)', false)
 	.option('-o|--offline [bool]', 'Use packaged data files instead of fetching latest from GitHub', false)
 	.option('-V|--keepVendored [bool]', 'Prevent skipping over vendored/generated files', false)

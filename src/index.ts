@@ -431,6 +431,30 @@ async function analyse(rawPaths?: string | string[], opts: T.Options = {}): Prom
 		results.languages.bytes += fileSize;
 	}
 
+	// Ignore languages with a bytes/% size less than the declared min size
+	if (opts.minSize) {
+		const totalSize = results.languages.bytes;
+		const minSizeAmt = parseFloat(opts.minSize.replace(/[a-z]+$/i, '')); // '2KB' -> 2
+		const minSizeUnit = opts.minSize.replace(/^\d+/, '').toLowerCase(); // '2KB' -> 'kb'
+		const conversionFactors: Record<string, (n: number) => number> = {
+			'b': n => n,
+			'kb': n => n * 1e3,
+			'mb': n => n * 1e6,
+			'%': n => n * totalSize / 100,
+		};
+		const minBytesSize = conversionFactors[minSizeUnit](+minSizeAmt);
+		// Apply specified minimums: delete language results that do not reach the threshold
+		for (const [lang, data] of Object.entries(results.languages.results)) {
+			if (data.bytes < minBytesSize) {
+				// Add data to 'Other' result
+				results.languages.results.other ??= { type: 'data' /*arbitrary*/, bytes: 0 };
+				results.languages.results.other.bytes += data.bytes;
+				// Remove language result
+				delete results.languages.results[lang];
+			}
+		}
+	}
+
 	// Set counts
 	results.files.count = Object.keys(results.files.results).length;
 	results.languages.count = Object.keys(results.languages.results).length;
